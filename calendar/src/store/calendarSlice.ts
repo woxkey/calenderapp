@@ -1,5 +1,4 @@
 import {createSlice} from '@reduxjs/toolkit';
-import type {PayloadAction} from '@reduxjs/toolkit';
 import {Calendar} from 'calendar';
 
 const cal = new Calendar(1);
@@ -37,13 +36,15 @@ export const calendarSlice = createSlice({
 		},
 		incrementWeek: (state) => {
 			if (state.weekNumber >= 4) {
-				// if (state.monthNumber >= 11) {
-				// 	state.monthNumber = 0;
-				// 	state.year = state.year + 1;
-				// }
+				if (state.monthNumber >= 11) {
+					state.year = state.year + 1;
+					state.monthNumber = 0;
+				} else {
+					state.monthNumber = state.monthNumber + 1;
+				}
+
 				state.weekNumber = 0;
-				state.monthNumber = state.monthNumber + 1;
-				console.log(state.monthNumber);
+
 				state.calendar = cal.monthDays(state.year, state.monthNumber);
 				return;
 			}
@@ -51,9 +52,16 @@ export const calendarSlice = createSlice({
 		},
 		decrementWeek: (state) => {
 			if (state.weekNumber <= 0) {
+				if (state.monthNumber === 0) {
+					state.year = state.year - 1;
+					state.monthNumber = 11;
+				} else {
+					state.monthNumber = state.monthNumber - 1;
+				}
+
 				state.weekNumber = 4;
-				state.monthNumber = state.monthNumber - 1;
-				state.calendar = cal.monthDays(2023, state.monthNumber);
+
+				state.calendar = cal.monthDays(state.year, state.monthNumber);
 				return;
 			}
 			state.weekNumber = state.weekNumber - 1;
