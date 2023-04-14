@@ -1,0 +1,67 @@
+import {createSlice} from '@reduxjs/toolkit';
+import type {PayloadAction} from '@reduxjs/toolkit';
+import {Calendar} from 'calendar';
+
+const cal = new Calendar(1);
+
+interface CalendarState {
+	weekNumber: number;
+	currentWeek: number[];
+	calendar: any;
+	monthNumber: number;
+	year: number;
+}
+
+const startYear = new Date().getFullYear();
+const startMonth = new Date().getMonth();
+const today = new Date().getDate();
+
+const initialState: CalendarState = {
+	weekNumber: today / 7,
+	currentWeek: [],
+	monthNumber: startMonth,
+	calendar: cal.monthDays(startYear, startMonth),
+	year: startYear,
+};
+
+export const calendarSlice = createSlice({
+	name: 'calendar',
+	initialState,
+	reducers: {
+		setCurrentWeek: (state) => {
+			for (let i = 0; i < state.calendar.length; i++) {
+				if (Math.floor(state.weekNumber) === i) {
+					state.currentWeek = state.calendar[i];
+				}
+			}
+		},
+		incrementWeek: (state) => {
+			if (state.weekNumber >= 4) {
+				// if (state.monthNumber >= 11) {
+				// 	state.monthNumber = 0;
+				// 	state.year = state.year + 1;
+				// }
+				state.weekNumber = 0;
+				state.monthNumber = state.monthNumber + 1;
+				console.log(state.monthNumber);
+				state.calendar = cal.monthDays(state.year, state.monthNumber);
+				return;
+			}
+			state.weekNumber = state.weekNumber + 1;
+		},
+		decrementWeek: (state) => {
+			if (state.weekNumber <= 0) {
+				state.weekNumber = 4;
+				state.monthNumber = state.monthNumber - 1;
+				state.calendar = cal.monthDays(2023, state.monthNumber);
+				return;
+			}
+			state.weekNumber = state.weekNumber - 1;
+		},
+	},
+});
+
+export const {setCurrentWeek, incrementWeek, decrementWeek} =
+	calendarSlice.actions;
+
+export default calendarSlice.reducer;
