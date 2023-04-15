@@ -9,7 +9,7 @@ import {
 	startYear,
 	today,
 } from '../store/calendarSlice';
-import {DAYS, monthNames} from '../consts';
+import {DAYS, Time, monthNames} from '../consts';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
 import {faAngleLeft} from '@fortawesome/free-solid-svg-icons';
@@ -46,7 +46,11 @@ const StyledHeaderIcon = styled(FontAwesomeIcon)`
 const Body = styled.div`
 	background-color: #f6f6f6;
 	color: black;
-	padding: 10px 50px;
+	padding: 10px 10px;
+
+	@media (min-width: 455px) {
+		padding: 10px 50px;
+	}
 `;
 
 const DaysContainer = styled.div`
@@ -94,11 +98,49 @@ const StyledLeftIcon = styled(FontAwesomeIcon)`
 const StyledTodaySpan = styled.div`
 	color: white;
 	background: #ff3131;
-	padding: 5px;
+	padding: 1px;
 	border-radius: 50%;
+	@media (min-width: 340px) {
+		padding: 5px;
+	}
 `;
 
 const StyledMonth = styled.p``;
+
+const Main = styled.div`
+	display: flex;
+	flex-direction: column;
+`;
+
+const Box = styled.div`
+	width: 100%;
+	min-height: 50px;
+	border: 1px solid #e6e6e6;
+	border-left: none;
+	margin-top: -1px;
+	margin-left: -1px;
+`;
+
+interface Props {
+	content: string;
+}
+
+const TimeWrapper = styled.div<Props>`
+	display: flex;
+	position: relative;
+	&:before {
+		content: '${({content}) => content}';
+		position: absolute;
+		left: -50px;
+		top: 42px;
+	}
+`;
+
+const TimeTitle = styled.div``;
+
+const Wrapper = styled.div``;
+
+const BoxesWrapper = styled.div``;
 
 const Calendar: React.FunctionComponent = (): React.ReactElement => {
 	const {weekNumber, currentWeek, monthNumber, year} = useAppSelector(
@@ -152,6 +194,19 @@ const Calendar: React.FunctionComponent = (): React.ReactElement => {
 					<StyledLeftIcon onClick={handleNext} icon={faAngleRight} />
 				</ButtonsMonth>
 			</Body>
+			<Main>
+				<BoxesWrapper>
+					{Time.map((time, i) => {
+						return (
+							<TimeWrapper content={time} key={i}>
+								{DAYS.map((day, i) => {
+									return <Box key={i} />;
+								})}
+							</TimeWrapper>
+						);
+					})}
+				</BoxesWrapper>
+			</Main>
 		</Container>
 	);
 };
