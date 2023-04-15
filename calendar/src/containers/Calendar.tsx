@@ -5,37 +5,100 @@ import {
 	decrementWeek,
 	incrementWeek,
 	setCurrentWeek,
+	startMonth,
+	startYear,
+	today,
 } from '../store/calendarSlice';
 import {DAYS, monthNames} from '../consts';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
+import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
+import {faAngleLeft} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
-const StyledContainer = styled.div`
-	width: 740px;
-	margin: 0 auto;
+const Container = styled.div`
+	@media (min-width: 740px) {
+		width: 740px;
+		margin: 0 auto;
+	}
 `;
 
-const StyledTable = styled.table`
+const Header = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px 20px;
+`;
+
+const Title = styled.div`
+	font-weight: 400;
+	font-size: 25px;
+	@media (min-width: 340px) {
+		font-size: 30px;
+	}
+`;
+
+const StyledHeaderIcon = styled(FontAwesomeIcon)`
+	color: #ff3131;
+	font-size: 30px;
+	cursor: pointer;
+`;
+
+const Body = styled.div`
 	background-color: #f6f6f6;
 	color: black;
-
-	width: 100%;
+	padding: 10px 50px;
 `;
 
-const StyledTr = styled.tr`
+const DaysContainer = styled.div`
+	font-weight: bold;
 	display: flex;
-	width: 100%;
+	justify-content: space-between;
+	padding-bottom: 10px;
+	font-size: 10px;
+	@media (min-width: 340px) {
+		font-size: 15px;
+	}
 `;
 
-const StyledDiv = styled.div`
-	overflow: hidden;
-`;
-
-const StyledTbody = styled.tbody`
+const Week = styled.div`
 	display: flex;
+	justify-content: space-between;
+	font-size: 15px;
+	align-items: center;
+	height: 40px;
+	@media (min-width: 340px) {
+		font-size: 25px;
+	}
 `;
 
-const StyledTh = styled.th`
-	width: 100px;
+const Day = styled.div`
+	width: 20px;
+	text-align: center;
+	@media (min-width: 340px) {
+		width: 40px;
+	}
 `;
+
+const ButtonsMonth = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 20px;
+`;
+
+const StyledLeftIcon = styled(FontAwesomeIcon)`
+	color: #ff3131;
+	cursor: pointer;
+`;
+
+const StyledTodaySpan = styled.div`
+	color: white;
+	background: #ff3131;
+	padding: 5px;
+	border-radius: 50%;
+`;
+
+const StyledMonth = styled.p``;
 
 const Calendar: React.FunctionComponent = (): React.ReactElement => {
 	const {weekNumber, currentWeek, monthNumber, year} = useAppSelector(
@@ -56,30 +119,40 @@ const Calendar: React.FunctionComponent = (): React.ReactElement => {
 	};
 
 	return (
-		<StyledContainer>
-			<StyledDiv>
-				<StyledTable>
-					<thead>
-						<StyledTr>
-							{DAYS.map((day, i) => {
-								return <StyledTh key={i}>{day}</StyledTh>;
-							})}
-						</StyledTr>
-					</thead>
-					<tbody>
-						<StyledTr>
-							{currentWeek.map((currentDay, i) => {
-								return <StyledTh key={i}>{currentDay}</StyledTh>;
-							})}
-						</StyledTr>
-					</tbody>
-				</StyledTable>
-				<p>{monthNames[monthNumber]}</p>
-				<p>year: {year}</p>
-				<button onClick={handlePrev}>Prev</button>
-				<button onClick={handleNext}>Next</button>
-			</StyledDiv>
-		</StyledContainer>
+		<Container>
+			<Header>
+				<Title>Interview Calendar</Title>
+				<StyledHeaderIcon icon={faPlus} />
+			</Header>
+			<Body>
+				<DaysContainer>
+					{DAYS.map((day, i) => {
+						return <Day key={i}>{day}</Day>;
+					})}
+				</DaysContainer>
+				<Week>
+					{currentWeek.map((day, i) => {
+						return today === day &&
+							startMonth === monthNumber &&
+							startYear === year ? (
+							<Day key={i}>
+								<StyledTodaySpan>{day}</StyledTodaySpan>
+							</Day>
+						) : (
+							<Day key={i}>{day === 0 ? '' : day}</Day>
+						);
+					})}
+				</Week>
+				<ButtonsMonth>
+					<StyledLeftIcon onClick={handlePrev} icon={faAngleLeft} />
+					<StyledMonth>
+						{monthNames[monthNumber]}
+						{' ' + year}
+					</StyledMonth>
+					<StyledLeftIcon onClick={handleNext} icon={faAngleRight} />
+				</ButtonsMonth>
+			</Body>
+		</Container>
 	);
 };
 

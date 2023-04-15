@@ -11,9 +11,9 @@ interface CalendarState {
 	year: number;
 }
 
-const startYear = new Date().getFullYear();
-const startMonth = new Date().getMonth();
-const today = new Date().getDate();
+export const startYear = new Date().getFullYear();
+export const startMonth = new Date().getMonth();
+export const today = new Date().getDate();
 
 const initialState: CalendarState = {
 	weekNumber: today / 7,
