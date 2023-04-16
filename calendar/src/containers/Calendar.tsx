@@ -14,6 +14,7 @@ import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
 import {faAngleLeft} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import IEvent from '../interfaces/IEvent';
 
 const Container = styled.div`
 	@media (min-width: 740px) {
@@ -46,10 +47,10 @@ const StyledHeaderIcon = styled(FontAwesomeIcon)`
 const Body = styled.div`
 	background-color: #f6f6f6;
 	color: black;
-	padding: 10px 10px;
+	padding: 10px 30px;
 
 	@media (min-width: 455px) {
-		padding: 10px 50px;
+		padding: 10px 60px;
 	}
 `;
 
@@ -78,6 +79,7 @@ const Week = styled.div`
 const Day = styled.div`
 	width: 20px;
 	text-align: center;
+	cursor: pointer;
 	@media (min-width: 340px) {
 		width: 40px;
 	}
@@ -112,13 +114,16 @@ const Main = styled.div`
 	flex-direction: column;
 `;
 
-const Box = styled.div`
+const Box = styled.div<{changeBg: boolean}>`
 	width: 100%;
 	min-height: 50px;
 	border: 1px solid #e6e6e6;
 	border-left: none;
-	margin-top: -1px;
-	margin-left: -1px;
+	cursor: pointer;
+	background-color: ${(p) => (p.changeBg ? '#ebecff' : 'white')};
+	&:hover {
+		background-color: #ebecff;
+	}
 `;
 
 interface Props {
@@ -130,23 +135,45 @@ const TimeWrapper = styled.div<Props>`
 	position: relative;
 	&:before {
 		content: '${({content}) => content}';
-		position: absolute;
-		left: -50px;
-		top: 42px;
+		font-size: 13px;
+		display: flex;
+		align-items: center;
 	}
 `;
 
-const TimeTitle = styled.div``;
-
-const Wrapper = styled.div``;
-
 const BoxesWrapper = styled.div``;
+
+const Footer = styled.div`
+	background-color: #f6f6f6;
+	height: 100px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 30px;
+	padding: 0 40px;
+`;
+
+const TodayBtn = styled.div`
+	color: #fe3e3e;
+	cursor: pointer;
+`;
+
+const DeleteBtn = styled.div`
+	color: #fd4545;
+	cursor: pointer;
+`;
 
 const Calendar: React.FunctionComponent = (): React.ReactElement => {
 	const {weekNumber, currentWeek, monthNumber, year} = useAppSelector(
 		(state) => state.calendar
 	);
 	const dispatch = useAppDispatch();
+	const [event, setEvent] = useState<IEvent>({} as IEvent);
+	const [isEvent, setIsEvent] = useState<boolean>(false);
+	const [showDelete, setShowDelete] = useState<boolean>(false);
+	const [dayChosen, setDayChosen] = useState<string>(
+		new Date().getDate().toString()
+	);
 
 	useEffect(() => {
 		dispatch(setCurrentWeek());
@@ -160,11 +187,35 @@ const Calendar: React.FunctionComponent = (): React.ReactElement => {
 		dispatch(decrementWeek());
 	};
 
+	const handleDay = (day: string) => {
+		setDayChosen(day);
+	};
+
+	const addEvent = () => {
+		const userEventTime = prompt('Enter event time:\nYYYY-MM-DD HH:mm:ss');
+		if (!userEventTime) return;
+		const year: number = parseInt(userEventTime.slice(0, 4));
+		const month: number = parseInt(userEventTime.slice(5, 7)) - 1;
+		const day: number = parseInt(userEventTime.slice(8, 10));
+		const hour: number = parseInt(userEventTime.slice(11, 13));
+		const myEvent: IEvent = {year, month, day, hour};
+		setEvent(myEvent);
+		setIsEvent(true);
+	};
+
+	const handleBoxClick = (day: number, time: string) => {
+		setShowDelete(true);
+	};
+
+	const handleDelete = () => {
+		setEvent({} as IEvent);
+	};
+
 	return (
 		<Container>
 			<Header>
 				<Title>Interview Calendar</Title>
-				<StyledHeaderIcon icon={faPlus} />
+				<StyledHeaderIcon onClick={addEvent} icon={faPlus} />
 			</Header>
 			<Body>
 				<DaysContainer>
@@ -177,11 +228,13 @@ const Calendar: React.FunctionComponent = (): React.ReactElement => {
 						return today === day &&
 							startMonth === monthNumber &&
 							startYear === year ? (
-							<Day key={i}>
+							<Day onClick={() => handleDay(day.toString())} key={i}>
 								<StyledTodaySpan>{day}</StyledTodaySpan>
 							</Day>
 						) : (
-							<Day key={i}>{day === 0 ? '' : day}</Day>
+							<Day onClick={() => handleDay(day.toString())} key={i}>
+								{day === 0 ? '' : day}
+							</Day>
 						);
 					})}
 				</Week>
@@ -199,14 +252,31 @@ const Calendar: React.FunctionComponent = (): React.ReactElement => {
 					{Time.map((time, i) => {
 						return (
 							<TimeWrapper content={time} key={i}>
-								{DAYS.map((day, i) => {
-									return <Box key={i} />;
+								{currentWeek.map((day, i) => {
+									return (
+										<Box
+											changeBg={
+												year === event.year &&
+												monthNumber === event.month &&
+												day === event.day &&
+												parseInt(time) === event.hour
+													? isEvent
+													: false
+											}
+											onClick={() => handleBoxClick(day, time)}
+											key={i}
+										/>
+									);
 								})}
 							</TimeWrapper>
 						);
 					})}
 				</BoxesWrapper>
 			</Main>
+			<Footer>
+				<TodayBtn>Today</TodayBtn>
+				{showDelete && <DeleteBtn onClick={handleDelete}>Delete</DeleteBtn>}
+			</Footer>
 		</Container>
 	);
 };
