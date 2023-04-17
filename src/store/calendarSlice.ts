@@ -29,7 +29,7 @@ export const calendarSlice = createSlice({
 	reducers: {
 		setCurrentWeek: (state) => {
 			for (let i = 0; i < state.calendar.length; i++) {
-				if (state.calendar[i].includes(today)) {
+				if (Math.ceil(state.weekNumber) === i) {
 					state.currentWeek = state.calendar[i];
 				}
 			}
